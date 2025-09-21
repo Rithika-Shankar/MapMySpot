@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MapMySpot AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f0f0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: white;
+      margin: 8px;
+      border: 3px solid #000;
+    }
+    .header {
+      background: linear-gradient(180deg, #e8e8e8 0%, #d4d4d4 100%);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #bbb;
+      min-height: 80px;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .logo {
+      width: 55px;
+      height: 55px;
+      border: 3px solid #4285f4;
+      border-radius: 8px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .app-title {
+      font-size: 32px;
+      font-weight: 600;
+      color: #4285f4;
+    }
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .ai-panel {
+      width: 300px;
+      background: #f8f9fa;
+      border-right: 2px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+    }
+    .chat-box {
+      flex: 1;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      background: #eee;
+      padding: 8px 12px;
+      margin: 6px 0;
+      border-radius: 10px;
+      max-width: 90%;
+      line-height: 1.4;
+    }
+    .message.user {
+      align-self: flex-end;
+      background: #4285f4;
+      color: white;
+    }
+    .message.ai {
+      align-self: flex-start;
+    }
+    .input-area {
+      display: flex;
+      gap: 8px;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .input-area button {
+      padding: 10px 14px;
+      border: none;
+      background: #4285f4;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .map-area {
+      flex: 1;
+      background: #eaeaea;
+      position: relative;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+    .back-button {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: #333;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .main {
+        flex-direction: column;
+      }
+      .ai-panel {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #ddd;
+        padding: 12px;
+        min-height: 40vh;
+      }
+      .map-area {
+        flex: 1;
+        height: 60vh;
+      }
+      .app-title {
+        font-size: 24px;
+      }
+      .chat-box {
+        max-height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-container">
+        <div class="logo">
+          <img src="logo.png" alt="MapMySpot Logo" />
+        </div>
+        <h1 class="app-title">MapMySpot</h1>
+      </div>
+    </div>
+
+    <!-- Main Body -->
+    <div class="main">
+      <!-- AI Assistant Panel -->
+      <div class="ai-panel">
+        <div class="chat-box" id="chatBox">
+          <div class="message ai">Hello! I'm your MapMySpot AI assistant. I can help you find parking spots, navigate to locations, check weather conditions, and answer questions about our app features. How can I assist you today?</div>
+        </div>
+        <div class="input-area">
+          <input type="text" id="userInput" placeholder="Ask me about parking..." />
+          <button onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+
+      <!-- Map Display Area -->
+      <div class="map-area">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d112090.51226496513!2d77.10249088034415!3d28.704059205132917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd55c6f1c6f7%3A0x6a746b72477d0d5b!2sDelhi!5e0!3m2!1sen!2sin!4v1699531654874!5m2!1sen!2sin"
+          allowfullscreen></iframe>
+        <button class="back-button" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const API_KEY = "your_api_key"; 
+
+const username = localStorage.getItem('username') || 'there';
+
+const systemPrompt = `You are Nova, the helpful AI assistant for MapMySpot, a smart parking finder application. Your role is to assist users with parking-related queries and app features. Follow these guidelines:
+
+1. PERSONALIZATION:
+- Address users by their name if available (current username: ${username})
+- Be friendly, professional, and concise (1–2 short paragraphs max)
+
+2. PARKING ASSISTANCE:
+- Help users find parking spots by location, type, and preferences
+- Explain options like street parking, garage, lot, etc.
+- Mention available filters: **EV charging**, **Accessible**, **Covered**, **Valet**
+
+3. APP FEATURES:
+- **Real-time parking availability** with live Google Maps view
+- **Price comparison** (estimates displayed for each spot)
+- **Favorite spots** with quick access
+- **Weather integration** and tips for parking in various conditions
+- **Navigation** via map and directions
+- **Dark mode** and **search bar** for better UX
+- **Traffic layer** and **heatmap** toggles to improve parking decisions
+
+4. WEATHER AWARENESS:
+- Inform users how weather affects parking
+- Suggest tips for rainy, hot, or stormy weather
+
+5. SAFETY TIPS:
+- Recommend **well-lit**, high-traffic areas at night
+- Suggest safety features like visible cameras or secure locations
+
+6. LIMITATIONS:
+- Do not mention unavailable features like AR or reservation system
+- For off-topic questions, politely redirect to parking-related help
+
+7. RESPONSE FORMAT:
+- Use bullet points when listing
+- Bold important terms with **asterisks**
+- Keep responses under 150 words`;
+
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const chatBox = document.getElementById('chatBox');
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'message user';
+  userMsg.textContent = userText;
+  chatBox.appendChild(userMsg);
+  input.value = '';
+
+  const loadingMsg = document.createElement('div');
+  loadingMsg.className = 'message ai';
+  loadingMsg.textContent = 'Finding the best parking info...';
+  chatBox.appendChild(loadingMsg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userText }
+        ],
+        temperature: 0.7,
+        max_tokens: 300
+      })
+    });
+
+    const data = await response.json();
+    loadingMsg.remove();
+
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'message ai';
+    let aiText = data.choices?.[0]?.message?.content?.trim() || "I couldn't find parking information for that. Could you try rephrasing?";
+    aiText = aiText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    aiText = aiText.replace(/\n/g, '<br>');
+    aiMsg.innerHTML = aiText;
+    chatBox.appendChild(aiMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  } catch (err) {
+    loadingMsg.remove();
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'message ai';
+    errorMsg.textContent = "Oops! Something went wrong. Try again later.";
+    chatBox.appendChild(errorMsg);
+  }
+}
+</script>
