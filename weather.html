@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MapMySpot Weather</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f0f0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: white;
+      margin: 8px;
+      border: 3px solid #000;
+    }
+    .header {
+      background: linear-gradient(180deg, #e8e8e8 0%, #d4d4d4 100%);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #bbb;
+      min-height: 80px;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .logo {
+      width: 55px;
+      height: 55px;
+      border: 3px solid #4285f4;
+      border-radius: 8px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .app-title {
+      font-size: 36px;
+      font-weight: 600;
+      color: #4285f4;
+    }
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .weather-panel {
+      width: 300px;
+      background: #f8f9fa;
+      border-right: 2px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .location-input {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .location-input input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px 0 0 6px;
+      border: 1px solid #ccc;
+      border-right: none;
+    }
+    .location-input button {
+      padding: 10px 14px;
+      background: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+    }
+    .weather-box {
+      flex: 1;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 16px;
+      text-align: center;
+    }
+    .map-area {
+      flex: 1;
+      background: #eaeaea;
+      position: relative;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+    .back-button {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: #333;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo-container">
+      <div class="logo">
+        <img src="logo.png" alt="MapMySpot Logo" />
+      </div>
+      <h1 class="app-title">MapMySpot</h1>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="weather-panel">
+      <div class="location-input">
+        <input type="text" id="cityInput" placeholder="Enter Location">
+        <button onclick="getWeather()">🔍</button>
+      </div>
+      <div class="weather-box" id="weatherBox">
+        <div>🌤️</div>
+        <div id="temp">-- °C</div>
+        <div id="desc">Enter a location</div>
+        <div id="humidity">Humidity: --%</div>
+        <div id="wind">Wind: -- m/s</div>
+      </div>
+    </div>
+
+    <div class="map-area">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d112090.51226496513!2d77.10249088034415!3d28.704059205132917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd55c6f1c6f7%3A0x6a746b72477d0d5b!2sDelhi!5e0!3m2!1sen!2sin!4v1699531654874!5m2!1sen!2sin"
+        allowfullscreen></iframe>
+      <button class="back-button" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function getWeather() {
+    const city = document.getElementById("cityInput").value.trim();
+    if (!city) return;
+
+    const apiKey = "YOUR_API_KEY";
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.cod !== 200) throw new Error(data.message);
+
+      document.getElementById("temp").textContent = `${data.main.temp} °C`;
+      document.getElementById("desc").textContent = data.weather[0].description;
+      document.getElementById("humidity").textContent = `Humidity: ${data.main.humidity}%`;
+      document.getElementById("wind").textContent = `Wind: ${data.wind.speed} m/s`;
+    } catch (err) {
+      document.getElementById("temp").textContent = `-- °C`;
+      document.getElementById("desc").textContent = `Location not found`;
+      document.getElementById("humidity").textContent = `Humidity: --%`;
+      document.getElementById("wind").textContent = `Wind: -- m/s`;
+    }
+  }
+</script>
+</body>
+</html>
