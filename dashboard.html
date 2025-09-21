@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapMySpot - Find Parking, Fast and Easy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f0f0;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background: #121212;
+            color: #e0e0e0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+            border: 3px solid #000;
+            margin: 8px;
+            border-radius: 0;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .container {
+            background: #1e1e1e;
+            border-color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(180deg, #e8e8e8 0%, #d4d4d4 100%);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #bbb;
+            min-height: 80px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .header {
+            background: linear-gradient(180deg, #2d2d2d 0%, #1f1f1f 100%);
+            border-color: #444;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 55px;
+            height: 55px;
+            border: 3px solid #4285f4;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        body.dark-mode .logo {
+            border-color: #5a9cf8;
+            background: #2d2d2d;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .app-title {
+            font-size: 36px;
+            font-weight: 600;
+            color: #4285f4;
+            letter-spacing: -0.5px;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .app-title {
+            color: #5a9cf8;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .search-icon {
+            background: #999;
+            color: white;
+        }
+
+        .profile-icon {
+            background: #666;
+            color: white;
+        }
+
+        .darkmode-icon {
+            background: #555;
+            color: white;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            width: 280px;
+            background: #f8f9fa;
+            padding: 25px 20px;
+            border-right: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .left-panel {
+            background: #252525;
+            border-color: #444;
+        }
+
+        .select-container {
+            position: relative;
+        }
+
+        .select-box {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="%23999" d="M6 8L0 0h12z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode .select-box {
+            background-color: #333;
+            border-color: #555;
+            color: #e0e0e0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="%23aaa" d="M6 8L0 0h12z"/></svg>');
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: #4285f4;
+        }
+
+        body.dark-mode .select-box:focus {
+            border-color: #5a9cf8;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .checkbox-label {
+            color: #aaa;
+        }
+
+        .checkbox-input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-apply {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-apply:hover {
+            background: #1565c0;
+            transform: translateY(-1px);
+        }
+
+        .btn-reset {
+            background: #0d47a1;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #1976d2;
+            transform: translateY(-1px);
+        }
+
+        .btn-favorites {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-favorites:hover {
+            background: #f57c00;
+            transform: translateY(-1px);
+        }
+
+        /* Map Container */
+        .map-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .map-area {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .map-control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .map-control-btn:hover {
+            background: #f5f5f5;
+            transform: scale(1.05);
+        }
+
+        body.dark-mode .map-control-btn {
+            background: #333;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .map-control-btn:hover {
+            background: #3d3d3d;
+        }
+
+        /* Footer */
+        .footer {
+            background: #f1f3f4;
+            padding: 18px 20px;
+            border-top: 2px solid #ddd;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            min-height: 90px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .footer {
+            background: #252525;
+            border-color: #444;
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .footer-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .weather-icon {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #ff6b35;
+        }
+
+        .ai-icon {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        body.dark-mode .ai-icon {
+            background: #3d3d3d;
+            color: #e0e0e0;
+        }
+
+        .maps-icon {
+            background: #4285f4;
+            color: white;
+        }
+
+        .support-icon {
+            background: #6b7280;
+            color: white;
+        }
+
+        .history-icon {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .footer-text {
+            color: #aaa;
+        }
+
+        /* Loading spinner */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .loading {
+            color: #aaa;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+
+        body.dark-mode .mobile-menu-toggle {
+            background: #5a9cf8;
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* Search Modal */
+        .search-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 100px;
+        }
+
+        .search-container {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+
+        body.dark-mode .search-container {
+            background: #2d2d2d;
+        }
+
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-header h2 {
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .search-header h2 {
+            color: #e0e0e0;
+        }
+
+        .close-search {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .close-search {
+            color: #aaa;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode .search-input {
+            background: #333;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #4285f4;
+        }
+
+        body.dark-mode .search-input:focus {
+            border-color: #5a9cf8;
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        body.dark-mode .search-result-item {
+            border-color: #444;
+        }
+
+        .search-result-item:hover {
+            background: #f5f5f5;
+        }
+
+        body.dark-mode .search-result-item:hover {
+            background: #3d3d3d;
+        }
+
+        /* Reservation Modal */
+        .reservation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reservation-container {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+
+        body.dark-mode .reservation-container {
+            background: #2d2d2d;
+        }
+
+        .reservation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .reservation-header h2 {
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .reservation-header h2 {
+            color: #e0e0e0;
+        }
+
+        .close-reservation {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .close-reservation {
+            color: #aaa;
+        }
+
+        .reservation-details {
+            margin-bottom: 20px;
+        }
+
+        .reservation-field {
+            margin-bottom: 15px;
+        }
+
+        .reservation-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .reservation-field label {
+            color: #aaa;
+        }
+
+        .reservation-field input, 
+        .reservation-field select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode .reservation-field input,
+        body.dark-mode .reservation-field select {
+            background: #333;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .reservation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .reservation-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reservation-confirm {
+            background: #4caf50;
+            color: white;
+        }
+
+        .reservation-confirm:hover {
+            background: #3d8b40;
+        }
+
+        .reservation-cancel {
+            background: #f44336;
+            color: white;
+        }
+
+        .reservation-cancel:hover {
+            background: #d32f2f;
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            width: 220px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 100;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .profile-dropdown {
+            background: #2d2d2d;
+            border-color: #444;
+        }
+
+        .profile-dropdown.active {
+            display: block;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: background 0.2s, color 0.3s;
+        }
+
+        body.dark-mode .profile-dropdown li {
+            color: #e0e0e0;
+        }
+
+        .profile-dropdown li:hover {
+            background: #f0f0f0;
+        }
+
+        body.dark-mode .profile-dropdown li:hover {
+            background: #3d3d3d;
+        }
+
+        .profile-dropdown li i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f44336;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Parking Spot Info Window */
+        .info-window-content {
+            min-width: 250px;
+            max-width: 300px;
+        }
+
+        .info-window-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        body.dark-mode .info-window-content .info-window-header {
+            color: #e0e0e0;
+        }
+
+        .info-window-details {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        body.dark-mode .info-window-content .info-window-details {
+            color: #aaa;
+        }
+
+        .info-window-price {
+            font-weight: 600;
+            color: #4caf50;
+            margin: 8px 0;
+        }
+
+        .info-window-availability {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .available {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        body.dark-mode .available {
+            background: #1b5e20;
+            color: #e8f5e9;
+        }
+
+        .limited {
+            background: #fff8e1;
+            color: #ff8f00;
+        }
+
+        body.dark-mode .limited {
+            background: #ff6f00;
+            color: #fff8e1;
+        }
+
+        .full {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        body.dark-mode .full {
+            background: #b71c1c;
+            color: #ffebee;
+        }
+
+        .info-window-rating {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .info-window-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .info-window-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .navigate-btn {
+            background: #4285f4;
+            color: white;
+        }
+
+        .navigate-btn:hover {
+            background: #3367d6;
+        }
+
+        /* .reserve-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .reserve-btn:hover {
+            background: #3d8b40;
+        } */
+
+        .favorite-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        .favorite-btn:hover {
+            background: #f57c00;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border: none;
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 10px 15px;
+                min-height: 70px;
+            }
+
+            .app-title {
+                font-size: 24px;
+            }
+
+            .logo {
+                width: 45px;
+                height: 45px;
+            }
+
+            .icon-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+            }
+
+            .main-content {
+                position: relative;
+            }
+
+            .left-panel {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                padding: 90px 20px 20px 20px;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+
+            .left-panel.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .mobile-overlay.active {
+                display: block;
+            }
+
+            .map-container {
+                width: 100%;
+            }
+
+            .footer {
+                padding: 12px 10px;
+                min-height: 70px;
+            }
+
+            .footer-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .footer-text {
+                font-size: 12px;
+            }
+
+            .btn {
+                padding: 14px 20px;
+                font-size: 14px;
+            }
+
+            .select-box {
+                padding: 12px 14px;
+                font-size: 13px;
+            }
+
+            .info-window-content {
+                min-width: 200px;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 8px 12px;
+                min-height: 60px;
+            }
+
+            .app-title {
+                font-size: 20px;
+            }
+
+            .logo {
+                width: 40px;
+                height: 40px;
+            }
+
+            .logo-container {
+                gap: 10px;
+            }
+
+            .header-icons {
+                gap: 8px;
+            }
+
+            .icon-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+
+            .left-panel {
+                width: 100%;
+                left: -100%;
+                padding: 80px 20px 20px 20px;
+            }
+
+            .footer {
+                padding: 10px 5px;
+                min-height: 65px;
+            }
+
+            .footer-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .footer-text {
+                font-size: 11px;
+            }
+
+            .mobile-menu-toggle {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+
+            .info-window-content {
+                min-width: 180px;
+                max-width: 220px;
+            }
+
+            .info-window-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .info-window-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+        <div class="mobile-overlay" onclick="closeMobileMenu()"></div>
+
+        <!-- Search Modal -->
+        <div class="search-modal" id="searchModal">
+            <div class="search-container">
+                <div class="search-header">
+                    <h2>Search Parking Spots</h2>
+                    <button class="close-search" onclick="closeSearchModal()">×</button>
+                </div>
+                <input type="text" class="search-input" id="searchInput" placeholder="Enter location or address...">
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservation Modal -->
+        <!-- <div class="reservation-modal" id="reservationModal">
+            <div class="reservation-container">
+                <div class="reservation-header">
+                    <h2>Reserve Parking Spot</h2>
+                    <button class="close-reservation" onclick="closeReservationModal()">×</button>
+                </div>
+                <div class="reservation-details">
+                    <div class="reservation-field">
+                        <label for="reservation-location">Location</label>
+                        <input type="text" id="reservation-location" readonly>
+                    </div>
+                    <div class="reservation-field">
+                        <label for="reservation-date">Date</label>
+                        <input type="date" id="reservation-date">
+                    </div>
+                    <div class="reservation-field">
+                        <label for="reservation-start">Start Time</label>
+                        <input type="time" id="reservation-start">
+                    </div>
+                    <div class="reservation-field">
+                        <label for="reservation-end">End Time</label>
+                        <input type="time" id="reservation-end">
+                    </div>
+                    <div class="reservation-field">
+                        <label for="reservation-vehicle">Vehicle Type</label>
+                        <select id="reservation-vehicle">
+                            <option value="car">Car</option>
+                            <option value="suv">SUV</option>
+                            <option value="truck">Truck</option>
+                            <option value="motorcycle">Motorcycle</option>
+                            <option value="ev">Electric Vehicle</option>
+                        </select>
+                    </div>
+                    <div class="reservation-field">
+                        <label for="reservation-price">Total Price</label>
+                        <input type="text" id="reservation-price" readonly>
+                    </div>
+                </div>
+                <div class="reservation-buttons">
+                    <button class="reservation-btn reservation-confirm" onclick="confirmReservation()">Confirm</button>
+                    <button class="reservation-btn reservation-cancel" onclick="closeReservationModal()">Cancel</button>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="logo.png" alt="MapMySpot Logo">
+                </div>
+                <h1 class="app-title">MapMySpot</h1>
+            </div>
+            <div class="header-icons">
+                <button class="icon-btn darkmode-icon" onclick="toggleDarkMode()">🌓</button>
+                <button class="icon-btn search-icon" onclick="openSearchModal()">🔍</button>
+                <button class="icon-btn profile-icon" onclick="toggleProfileMenu()">
+                    👤
+                    <span class="notification-badge" id="notificationBadge">3</span>
+                </button>
+            </div>
+            <div class="profile-dropdown" id="profileMenu">
+                <ul>
+                    <li id="usernameDisplay"><i>👤</i> User Name</li>
+                    <li onclick="openNotifications()"><i>🔔</i> Notifications <span class="notification-badge">3</span></li>
+                    <li onclick="openSettings()"><i>⚙️</i> Settings</li>
+                    <li onclick="openHistory()"><i>🕒</i> History</li>
+                    <li onclick="openFavorites()"><i>❤️</i> Favorites</li>
+                    <li onclick="logout()"><i>🚪</i> Logout</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel -->
+            <div class="left-panel" id="leftPanel">
+                <div class="select-container">
+                    <select class="select-box" id="parkingType">
+                        <option value="">All Parking Types</option>
+                        <option value="parking">Parking</option>
+                        <option value="parking_garage">Garage</option>
+                        <option value="parking_lot">Lot</option>
+                        <option value="street_parking">Street Parking</option>
+                        <option value="underground_parking">Underground</option>
+                    </select>
+                </div>
+
+                <div class="select-container">
+                    <select class="select-box" id="radius">
+                        <option value="500">Within 0.5 km</option>
+                        <option value="1000" selected>Within 1 km</option>
+                        <option value="2000">Within 2 km</option>
+                        <option value="5000">Within 5 km</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="checkbox-input" id="evCharging"> EV Charging Available
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="checkbox-input" id="accessible"> Accessible Parking
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="checkbox-input" id="covered"> Covered Parking
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="checkbox-input" id="valet"> Valet Parking
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-apply" onclick="findParkingSpots()">Find Parking</button>
+                    <button class="btn btn-reset" onclick="resetFilters()">Reset</button>
+                    <button class="btn btn-favorites" onclick="showFavorites()">Favorites</button>
+                </div>
+            </div>
+
+            <!-- Map Area -->
+            <div class="map-container">
+                <div class="map-area">
+                    <div id="map">
+                        <div class="loading">Loading map...</div>
+                    </div>
+                    <div class="map-controls">
+                        <button class="map-control-btn" onclick="toggleTrafficLayer()">🚦</button>
+                        <button class="map-control-btn" onclick="toggleHeatmap()">🔥</button>
+                        <button class="map-control-btn" onclick="centerToUser()">📍</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="weather.html" class="footer-item">
+                <div class="footer-icon weather-icon">☀️</div>
+                <div class="footer-text">Weather</div>
+            </a>
+            <a href="ai.html" class="footer-item">
+                <div class="footer-icon ai-icon">🤖</div>
+                <div class="footer-text">AI</div>
+            </a>
+            <div class="footer-item" onclick="openHistory()">
+                <div class="footer-icon history-icon">🕒</div>
+                <div class="footer-text">History</div>
+            </div>
+            <div class="footer-item" onclick="openGoogleMaps()">
+                <div class="footer-icon maps-icon">📍</div>
+                <div class="footer-text">Maps</div>
+            </div>
+            <div class="footer-item" onclick="openSupport()">
+                <div class="footer-icon support-icon">🎧</div>
+                <div class="footer-text">Support</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let markers = [];
+        let infoWindows = [];
+        let userLocation = null;
+        let autocompleteService;
+        let placesService;
+        let geocoder;
+        let trafficLayer;
+        let heatmap;
+        let heatmapData = [];
+        let trafficLayerActive = false;
+        let heatmapActive = false;
+        //let currentReservationSpot = null;
+        let favoriteSpots = JSON.parse(localStorage.getItem('favoriteSpots')) || [];
+        let parkingHistory = JSON.parse(localStorage.getItem('parkingHistory')) || [];
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Initialize the app
+        function initApp() {
+            // Set dark mode if enabled
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // Initialize map
+            initMap();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load user data
+            loadUserData();
+        }
+
+        // Initialize Google Map
+        function initMap() {
+            const defaultCenter = { lat: 12.9250, lng: 77.5836 }; // Default location (Bangalore)
+            
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 13,
+                center: defaultCenter,
+                styles: isDarkMode ? darkMapStyle : [],
+                gestureHandling: 'greedy',
+                zoomControl: true,
+                mapTypeControl: false,
+                scaleControl: false,
+                streetViewControl: false,
+                rotateControl: false,
+                fullscreenControl: false
+            });
+
+            // Initialize services
+            autocompleteService = new google.maps.places.AutocompleteService();
+            placesService = new google.maps.places.PlacesService(map);
+            geocoder = new google.maps.Geocoder();
+            
+            // Initialize traffic layer
+            trafficLayer = new google.maps.TrafficLayer();
+            
+            // Initialize heatmap
+            initHeatmap();
+
+            // Try to get user's location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        map.setCenter(userLocation);
+                        
+                        // Add user location marker
+                        new google.maps.Marker({
+                            position: userLocation,
+                            map: map,
+                            title: 'Your Location',
+                            icon: {
+                                url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="%234285f4" stroke="white" stroke-width="2"/></svg>',
+                                scaledSize: new google.maps.Size(20, 20)
+                            }
+                        });
+
+                        // Find nearby parking spots
+                        findParkingSpots();
+                    },
+                    () => {
+                        console.log('Geolocation failed, using default location');
+                        findParkingSpots();
+                    }
+                );
+            } else {
+                findParkingSpots();
+            }
+
+            // Close mobile menu when map is clicked
+            map.addListener('click', () => {
+                closeMobileMenu();
+                document.getElementById('profileMenu').classList.remove('active');
+            });
+        }
+
+        // Initialize heatmap
+        function initHeatmap() {
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: [],
+                map: null,
+                radius: 30,
+                opacity: 0.6
+            });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Dark mode toggle
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+        }
+
+        // Load user data
+        function loadUserData() {
+            // Load username
+            const username = localStorage.getItem('username') || 'User';
+            document.getElementById('usernameDisplay').innerHTML = '<i>👤</i> ' + username;
+            
+            // Load notification count
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            document.getElementById('notificationBadge').textContent = notifications.length > 9 ? '9+' : notifications.length;
+        }
+
+        // Find real parking spots using Google Places API
+        function findParkingSpots() {
+            clearMarkers();
+            
+            const parkingType = document.getElementById('parkingType').value;
+            const radius = parseInt(document.getElementById('radius').value);
+            const location = userLocation || map.getCenter();
+            const evCharging = document.getElementById('evCharging').checked;
+            const accessible = document.getElementById('accessible').checked;
+            const covered = document.getElementById('covered').checked;
+            const valet = document.getElementById('valet').checked;
+            
+            let request = {
+                location: location,
+                radius: radius,
+                type: parkingType || 'parking',
+                keyword: 'parking'
+            };
+
+            placesService.nearbySearch(request, (results, status, pagination) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    // Filter results based on additional criteria
+                    let filteredResults = results.filter(spot => {
+                        // In a real app, we would check these against the place details
+                        return true;
+                    });
+                    
+                    displayParkingSpots(filteredResults);
+                    
+                    // Update heatmap data
+                    updateHeatmapData(filteredResults);
+                    
+                    // If there are more results, you could add a "Load More" button
+                    if (pagination && pagination.hasNextPage) {
+                        // You could add a button to load more results
+                    }
+                } else {
+                    console.log('No parking spots found', status);
+                    document.getElementById('map').innerHTML = '<div class="loading">No parking spots found in this area</div>';
+                }
+            });
+        }
+
+        // Update heatmap data
+        function updateHeatmapData(spots) {
+            heatmapData = spots.map(spot => {
+                // Simulate popularity/availability based on rating and user ratings count
+                const weight = (spot.rating || 3) * (spot.user_ratings_total || 10) / 10;
+                return {
+                    location: spot.geometry.location,
+                    weight: weight
+                };
+            });
+            
+            if (heatmapActive) {
+                heatmap.setData(heatmapData.map(data => {
+                    return {
+                        location: data.location,
+                        weight: data.weight
+                    };
+                }));
+            }
+        }
+
+        // Display parking spots on map
+        function displayParkingSpots(spots) {
+            clearMarkers();
+            
+            if (spots.length === 0) {
+                document.getElementById('map').innerHTML = '<div class="loading">No parking spots found in this area</div>';
+                return;
+            }
+            
+            spots.forEach(spot => {
+                // Check if this spot is a favorite
+                const isFavorite = favoriteSpots.some(fav => fav.place_id === spot.place_id);
+                
+                // Generate a random availability status for demo purposes
+                const availabilityStatus = ['available', 'limited', 'full'][Math.floor(Math.random() * 3)];
+                const availabilityText = {
+                    'available': 'Available',
+                    'limited': 'Limited',
+                    'full': 'Full'
+                }[availabilityStatus];
+                
+                // Generate price - street parking is free, others have random prices (adjusted for India)
+                const isStreetParking = spot.types.includes('street_parking');
+                // Generate realistic Indian parking prices (₹20-₹100 per hour)
+                const pricePerHour = isStreetParking ? 'Free' : '₹' + (Math.random() * 80 + 20).toFixed(0);
+                
+                const marker = new google.maps.Marker({
+                    position: spot.geometry.location,
+                    map: map,
+                    title: spot.name,
+                    icon: {
+                        url: isFavorite ? 
+                            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"><circle cx="12.5" cy="12.5" r="10" fill="%23ff9800" stroke="white" stroke-width="2"/><text x="12.5" y="17" text-anchor="middle" fill="white" font-size="12" font-weight="bold">P</text></svg>' :
+                            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"><circle cx="12.5" cy="12.5" r="10" fill="%234285f4" stroke="white" stroke-width="2"/><text x="12.5" y="17" text-anchor="middle" fill="white" font-size="12" font-weight="bold">P</text></svg>',
+                        scaledSize: new google.maps.Size(25, 25)
+                    }
+                });
+
+                // Get more details about the place
+                placesService.getDetails({ placeId: spot.place_id }, (place, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        const content = `
+                            <div class="info-window-content">
+                                <h4 class="info-window-header">${place.name || 'Parking Spot'}</h4>
+                                <div class="info-window-details">
+                                    ${place.formatted_address ? `<p><small>${place.formatted_address}</small></p>` : ''}
+                                    <p>${place.international_phone_number ? `📞 ${place.international_phone_number}<br>` : ''}
+                                    ${place.website ? `<a href="${place.website}" target="_blank">Website</a><br>` : ''}</p>
+                                    <div class="info-window-price">${pricePerHour}${isStreetParking ? '' : '/hour'}</div>
+                                    <div class="info-window-availability ${availabilityStatus}">${availabilityText}</div>
+                                    ${place.rating ? `
+                                    <div class="info-window-rating">
+                                        ⭐ ${place.rating} (${place.user_ratings_total || 0} reviews)
+                                    </div>` : ''}
+                                </div>
+                                <div class="info-window-actions">
+                                    <button class="info-window-btn navigate-btn" onclick="navigateToSpot(${place.geometry.location.lat()}, ${place.geometry.location.lng()})">
+                                        Navigate
+                                    </button>
+
+                                    <button class="info-window-btn favorite-btn" onclick="toggleFavorite('${place.place_id}', ${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${place.name}')">
+                                        ${isFavorite ? '❤️' : '🤍'}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: content
+                        });
+
+                        marker.addListener('click', () => {
+                            closeAllInfoWindows();
+                            infoWindow.open(map, marker);
+                        });
+
+                        infoWindows.push(infoWindow);
+                        
+                        // Add to parking history if not already there
+                        const historyItem = {
+                            place_id: place.place_id,
+                            name: place.name,
+                            address: place.formatted_address,
+                            lat: place.geometry.location.lat(),
+                            lng: place.geometry.location.lng(),
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        if (!parkingHistory.some(item => item.place_id === place.place_id)) {
+                            parkingHistory.unshift(historyItem);
+                            if (parkingHistory.length > 20) parkingHistory.pop();
+                            localStorage.setItem('parkingHistory', JSON.stringify(parkingHistory));
+                        }
+                    }
+                });
+
+                markers.push(marker);
+            });
+        }
+
+        // Clear all markers
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            infoWindows = [];
+        }
+
+        // Close all info windows
+        function closeAllInfoWindows() {
+            infoWindows.forEach(window => window.close());
+        }
+
+        // Toggle traffic layer
+        function toggleTrafficLayer() {
+            trafficLayerActive = !trafficLayerActive;
+            if (trafficLayerActive) {
+                trafficLayer.setMap(map);
+            } else {
+                trafficLayer.setMap(null);
+            }
+        }
+
+        // Toggle heatmap
+        function toggleHeatmap() {
+            heatmapActive = !heatmapActive;
+            if (heatmapActive) {
+                heatmap.setMap(map);
+                heatmap.setData(heatmapData.map(data => {
+                    return {
+                        location: data.location,
+                        weight: data.weight
+                    };
+                }));
+            } else {
+                heatmap.setMap(null);
+            }
+        }
+
+        // Center map to user location
+        function centerToUser() {
+            if (userLocation) {
+                map.setCenter(userLocation);
+                map.setZoom(15);
+            } else {
+                alert("Location services are not enabled or your location is not available.");
+            }
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const leftPanel = document.getElementById('leftPanel');
+            const overlay = document.querySelector('.mobile-overlay');
+            
+            leftPanel.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Close profile menu if open
+            document.getElementById('profileMenu').classList.remove('active');
+        }
+
+        function closeMobileMenu() {
+            const leftPanel = document.getElementById('leftPanel');
+            const overlay = document.querySelector('.mobile-overlay');
+            
+            leftPanel.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // Search modal functions
+        function openSearchModal() {
+            document.getElementById('searchModal').style.display = 'flex';
+            document.getElementById('searchInput').focus();
+        }
+
+        function closeSearchModal() {
+            document.getElementById('searchModal').style.display = 'none';
+            document.getElementById('searchResults').innerHTML = '';
+        }
+
+        // Handle search input
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value;
+            if (query.length < 3) {
+                document.getElementById('searchResults').innerHTML = '';
+                return;
+            }
+
+            autocompleteService.getPlacePredictions({
+                input: query,
+                types: ['geocode'],
+                componentRestrictions: { country: 'in' }
+            }, (predictions, status) => {
+                const resultsContainer = document.getElementById('searchResults');
+                resultsContainer.innerHTML = '';
+
+                if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+                    resultsContainer.innerHTML = '<div class="search-result-item">No results found</div>';
+                    return;
+                }
+
+                predictions.forEach(prediction => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.textContent = prediction.description;
+                    item.onclick = () => {
+                        geocodePlace(prediction.place_id);
+                    };
+                    resultsContainer.appendChild(item);
+                });
+            });
+        });
+
+        // Geocode a place by place_id
+        function geocodePlace(placeId) {
+            geocoder.geocode({ placeId: placeId }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const newLocation = results[0].geometry.location;
+                    
+                    // Listen for the idle event which fires when map movement is complete
+                    google.maps.event.addListenerOnce(map, 'idle', function() {
+                        findParkingSpots();
+                    });
+                    
+                    // Center the map
+                    map.setCenter(newLocation);
+                    map.setZoom(15);
+                    
+                    closeSearchModal();
+                }
+            });
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('parkingType').value = '';
+            document.getElementById('radius').value = '1000';
+            document.getElementById('evCharging').checked = false;
+            document.getElementById('accessible').checked = false;
+            document.getElementById('covered').checked = false;
+            document.getElementById('valet').checked = false;
+            
+            // Find parking spots with default filters
+            findParkingSpots();
+
+            // Visual feedback
+            const btn = document.querySelector('.btn-reset');
+            btn.style.background = '#1976d2';
+            btn.textContent = 'Reset!';
+            setTimeout(() => {
+                btn.style.background = '#0d47a1';
+                btn.textContent = 'Reset';
+            }, 1000);
+
+            // Close mobile menu after resetting filters
+            closeMobileMenu();
+        }
+
+        // Navigate to parking spot
+        function navigateToSpot(lat, lng) {
+            if (!userLocation) {
+                alert("Please enable location services to use navigation");
+                return;
+            }
+
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${lat},${lng}&travelmode=driving`;
+            window.open(url, '_blank');
+        }
+
+        // Open reservation modal
+        function openReservationModal(name, lat, lng, price) {
+            currentReservationSpot = { name, lat, lng, price };
+            
+            // Set default values
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                            now.getMinutes().toString().padStart(2, '0');
+            
+            document.getElementById('reservation-location').value = name;
+            document.getElementById('reservation-date').value = dateStr;
+            document.getElementById('reservation-start').value = timeStr;
+            document.getElementById('reservation-end').value = 
+                (now.getHours() + 1).toString().padStart(2, '0') + ':' + 
+                now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('reservation-price').value = price + '/hour';
+            
+            // Show modal
+            document.getElementById('reservationModal').style.display = 'flex';
+        }
+
+        // Close reservation modal
+        function closeReservationModal() {
+            document.getElementById('reservationModal').style.display = 'none';
+            currentReservationSpot = null;
+        }
+
+        // Confirm reservation
+        function confirmReservation() {
+            if (!currentReservationSpot) return;
+            
+            const date = document.getElementById('reservation-date').value;
+            const startTime = document.getElementById('reservation-start').value;
+            const endTime = document.getElementById('reservation-end').value;
+            const vehicleType = document.getElementById('reservation-vehicle').value;
+            
+            // In a real app, you would send this to your backend
+            alert(`Reservation confirmed!\n\nLocation: ${currentReservationSpot.name}\nDate: ${date}\nTime: ${startTime} - ${endTime}\nVehicle: ${vehicleType}\nPrice: ${currentReservationSpot.price}/hour`);
+            
+            // Add to notifications
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            notifications.push({
+                type: 'reservation',
+                message: `Reservation confirmed at ${currentReservationSpot.name}`,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            document.getElementById('notificationBadge').textContent = notifications.length > 9 ? '9+' : notifications.length;
+            
+            closeReservationModal();
+        }
+
+        // Toggle favorite status
+        function toggleFavorite(place_id, lat, lng, name) {
+            const index = favoriteSpots.findIndex(spot => spot.place_id === place_id);
+            
+            if (index === -1) {
+                // Add to favorites
+                favoriteSpots.push({ place_id, lat, lng, name });
+                alert(`${name} added to favorites!`);
+            } else {
+                // Remove from favorites
+                favoriteSpots.splice(index, 1);
+                alert(`${name} removed from favorites!`);
+            }
+            
+            localStorage.setItem('favoriteSpots', JSON.stringify(favoriteSpots));
+            
+            // Refresh the info window to update the favorite icon
+            closeAllInfoWindows();
+            findParkingSpots();
+        }
+
+        // Show favorites
+        function showFavorites() {
+            if (favoriteSpots.length === 0) {
+                alert("You don't have any favorite parking spots yet!");
+                return;
+            }
+            
+            // Center map on first favorite
+            map.setCenter({ lat: favoriteSpots[0].lat, lng: favoriteSpots[0].lng });
+            map.setZoom(14);
+            
+            // Clear existing markers
+            clearMarkers();
+            
+            // Add favorite markers
+            favoriteSpots.forEach(spot => {
+                const marker = new google.maps.Marker({
+                    position: { lat: spot.lat, lng: spot.lng },
+                    map: map,
+                    title: spot.name,
+                    icon: {
+                        url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"><circle cx="12.5" cy="12.5" r="10" fill="%23ff9800" stroke="white" stroke-width="2"/><text x="12.5" y="17" text-anchor="middle" fill="white" font-size="12" font-weight="bold">P</text></svg>',
+                        scaledSize: new google.maps.Size(25, 25)
+                    }
+                });
+                
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div class="info-window-content">
+                            <h4 class="info-window-header">${spot.name}</h4>
+                            <div class="info-window-actions">
+                                <button class="info-window-btn navigate-btn" onclick="navigateToSpot(${spot.lat}, ${spot.lng})">
+                                    Navigate
+                                </button>
+                                <button class="info-window-btn favorite-btn" onclick="toggleFavorite('${spot.place_id}', ${spot.lat}, ${spot.lng}, '${spot.name}')">
+                                    ❤️
+                                </button>
+                            </div>
+                        </div>
+                    `
+                });
+                
+                marker.addListener('click', () => {
+                    closeAllInfoWindows();
+                    infoWindow.open(map, marker);
+                });
+                
+                markers.push(marker);
+                infoWindows.push(infoWindow);
+            });
+            
+            closeMobileMenu();
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            // Change map style
+            if (map) {
+                map.setOptions({ styles: isDarkMode ? darkMapStyle : [] });
+            }
+        }
+
+        // Header icon functions
+        function toggleProfileMenu() {
+            document.getElementById('profileMenu').classList.toggle('active');
+        }
+
+        // Close profile dropdown if clicked outside
+        document.addEventListener('click', function (e) {
+            const profileBtn = document.querySelector('.profile-icon');
+            const dropdown = document.getElementById('profileMenu');
+            if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // Open notifications
+        function openNotifications() {
+            alert("Notifications would be displayed here");
+            document.getElementById('profileMenu').classList.remove('active');
+        }
+
+        // Open settings
+        function openSettings() {
+            alert("Settings would be displayed here");
+            document.getElementById('profileMenu').classList.remove('active');
+        }
+
+        // Open history
+        function openHistory() {
+            if (parkingHistory.length === 0) {
+                alert("No parking history yet!");
+                return;
+            }
+            
+            let historyMessage = "Your recent parking searches:\n\n";
+            parkingHistory.forEach((item, index) => {
+                historyMessage += `${index + 1}. ${item.name}\n   ${item.address}\n\n`;
+            });
+            
+            alert(historyMessage);
+            document.getElementById('profileMenu').classList.remove('active');
+        }
+
+        // Open favorites
+        function openFavorites() {
+            showFavorites();
+            document.getElementById('profileMenu').classList.remove('active');
+        }
+
+        // Display the logged-in username from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = localStorage.getItem('username') || 'User';
+            document.getElementById('usernameDisplay').innerHTML = '<i>👤</i> ' + username;
+        });
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('username');
+            window.location.href = 'index.html';
+        }
+
+        // Footer functions
+        function openGoogleMaps() {
+            const center = map.getCenter();
+            const url = `https://www.google.com/maps/search/?api=1&query=${center.lat()},${center.lng()}`;
+            window.open(url, '_blank');
+        }
+
+        function openSupport() {
+            // In a real app, this would open a support chat
+            const issue = prompt("What parking issue can we help you with?");
+            if (issue) {
+                alert(`Thank you for your message about "${issue}". Our support team will get back to you soon.`);
+            }
+        }
+
+        // Dark map style
+        const darkMapStyle = [
+            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+            {
+                featureType: "administrative.locality",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#d59563" }]
+            },
+            {
+                featureType: "poi",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#d59563" }]
+            },
+            {
+                featureType: "poi.park",
+                elementType: "geometry",
+                stylers: [{ color: "#263c3f" }]
+            },
+            {
+                featureType: "poi.park",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#6b9a76" }]
+            },
+            {
+                featureType: "road",
+                elementType: "geometry",
+                stylers: [{ color: "#38414e" }]
+            },
+            {
+                featureType: "road",
+                elementType: "geometry.stroke",
+                stylers: [{ color: "#212a37" }]
+            },
+            {
+                featureType: "road",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#9ca5b3" }]
+            },
+            {
+                featureType: "road.highway",
+                elementType: "geometry",
+                stylers: [{ color: "#746855" }]
+            },
+            {
+                featureType: "road.highway",
+                elementType: "geometry.stroke",
+                stylers: [{ color: "#1f2835" }]
+            },
+            {
+                featureType: "road.highway",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#f3d19c" }]
+            },
+            {
+                featureType: "transit",
+                elementType: "geometry",
+                stylers: [{ color: "#2f3948" }]
+            },
+            {
+                featureType: "transit.station",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#d59563" }]
+            },
+            {
+                featureType: "water",
+                elementType: "geometry",
+                stylers: [{ color: "#17263c" }]
+            },
+            {
+                featureType: "water",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#515c6d" }]
+            },
+            {
+                featureType: "water",
+                elementType: "labels.text.stroke",
+                stylers: [{ color: "#17263c" }]
+            }
+        ];
+
+        // Initialize the app when the window loads
+        window.onload = initApp;
+    </script>
+    <!-- Google Maps API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places,visualization&callback=initApp"></script>
+</body>
+</html>
